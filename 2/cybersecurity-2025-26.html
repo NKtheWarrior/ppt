@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cybersecurity in 2025–26: Key Incidents &amp; Lessons</title>
+
+<!-- ===========================================================
+     FONTS — JetBrains Mono only (Terminal Green preset)
+     =========================================================== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200;300;400;500;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ===========================================================
+   1. THEME TOKENS
+   Change these to restyle the entire deck.
+   =========================================================== */
+:root{
+  --bg:#0d1117;            /* terminal background        */
+  --panel:#010409;         /* recessed panel             */
+  --panel-2:#0e141b;       /* raised panel               */
+  --line:#21262d;          /* hairline border            */
+  --line-2:#30363d;        /* stronger border            */
+
+  --green:#39d353;         /* primary phosphor accent    */
+  --green-dim:#26a641;
+  --green-deep:#0e4429;
+  --green-soft:rgba(57,211,83,.09);
+
+  --blue:#58a6ff;
+  --amber:#d29922;
+  --red:#f85149;
+  --purple:#bc8cff;
+
+  --text:#c9d1d9;
+  --text-hi:#e6edf3;
+  --muted:#6e7681;
+  --muted-2:#484f58;
+
+  /* Base-CSS hooks: black letterbox, transparent slides */
+  --stage-bg:#000;
+  --slide-bg:transparent;
+
+  --ease:cubic-bezier(.16,1,.3,1);
+  --font:'JetBrains Mono',ui-monospace,monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* ===========================================================
+   2. FIXED 16:9 STAGE — mandatory base styles (viewport-base.css)
+   Slides are authored at 1920x1080 and scaled as a whole.
+   =========================================================== */
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg,#000)}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg,#000)}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;
+  transform-origin:0 0;background:var(--slide-bg,#fff)}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;
+  visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg,#fff)}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1}
+img,video,canvas,svg{max-width:100%;max-height:100%}
+.deck-controls{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000}
+@media print{
+  html,body{width:1920px;height:auto;overflow:visible;background:#fff}
+  .deck-viewport{position:static;overflow:visible;background:#fff}
+  .deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none}
+  .slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;
+    pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always}
+  .slide:last-child{break-after:auto;page-break-after:auto}
+  .deck-controls{display:none!important}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}
+}
+
+/* ===========================================================
+   3. GLOBAL TERMINAL SHELL
+   The whole 1920x1080 stage IS one terminal window: title bar
+   on top, vim-style status bar at the bottom, CRT overlays above.
+   =========================================================== */
+.deck-stage{background:var(--bg);font-family:var(--font);color:var(--text)}
+
+/* Phosphor glow field, painted under every slide */
+.crt-bg{position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 1200px 800px at 50% 42%, rgba(57,211,83,.085) 0%, transparent 70%),
+    radial-gradient(ellipse 700px 460px at 8% 96%, rgba(57,211,83,.05) 0%, transparent 72%),
+    radial-gradient(ellipse 700px 460px at 96% 6%, rgba(57,211,83,.045) 0%, transparent 72%),
+    var(--bg)}
+
+/* Window title bar */
+.chrome-top{position:absolute;top:0;left:0;right:0;height:60px;z-index:6;
+  display:flex;align-items:center;gap:18px;padding:0 30px;
+  background:rgba(1,4,9,.86);border-bottom:1px solid var(--line);
+  font-size:19px;color:var(--muted);letter-spacing:.04em}
+.tdots{display:flex;gap:9px}
+.tdots i{width:12px;height:12px;border-radius:50%;display:block;background:var(--muted-2)}
+.tdots i:nth-child(1){background:var(--red)}
+.tdots i:nth-child(2){background:var(--amber)}
+.tdots i:nth-child(3){background:var(--green-dim)}
+.tpath b{color:var(--green);font-weight:500}
+.tright{margin-left:auto;display:flex;align-items:center;gap:14px;color:var(--green-dim);letter-spacing:.15em}
+.tright .dot{width:9px;height:9px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 12px var(--green);animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* Vim-style status bar */
+.statusbar{position:absolute;bottom:0;left:0;right:0;height:56px;z-index:6;
+  display:flex;align-items:center;gap:28px;padding:0 30px;
+  background:var(--green-deep);border-top:1px solid var(--green-dim);
+  font-size:19px;color:#7ee787;letter-spacing:.1em}
+.statusbar .seg{margin-left:-30px;height:56px;padding:0 20px;display:flex;align-items:center;
+  background:var(--green);color:#04140a;font-weight:700;letter-spacing:.14em}
+.statusbar .sec{color:#a8f0b8}
+.statusbar .rt{margin-left:auto;display:flex;align-items:center;gap:26px;color:#3fb950}
+.pips{display:flex;gap:6px;align-items:center}
+.pips i{width:9px;height:9px;border:1px solid #3fb950;display:block;transform:rotate(45deg)}
+.pips i.on{background:var(--green);border-color:var(--green);box-shadow:0 0 10px rgba(57,211,83,.8)}
+
+/* CRT overlays — above slides, never interactive */
+.scan{position:absolute;inset:0;z-index:8;pointer-events:none;opacity:.5;
+  background:repeating-linear-gradient(to bottom,rgba(0,0,0,.3) 0px,rgba(0,0,0,.3) 1px,transparent 1px,transparent 4px)}
+.roll{position:absolute;left:0;right:0;height:200px;z-index:8;pointer-events:none;
+  background:linear-gradient(to bottom,transparent,rgba(57,211,83,.05),transparent);
+  animation:roll 10s linear infinite}
+@keyframes roll{0%{top:-220px}100%{top:1120px}}
+.vig{position:absolute;inset:0;z-index:9;pointer-events:none;
+  box-shadow:inset 0 0 240px 70px rgba(0,0,0,.82)}
+
+/* ===========================================================
+   4. SLIDE CONTENT BOX
+   Every slide lays out inside this 1728 x 866 working canvas,
+   which clears the title bar and status bar.
+   =========================================================== */
+.pad{position:absolute;left:96px;right:96px;top:118px;bottom:96px;z-index:2}
+
+.shead{display:flex;align-items:center;gap:20px;height:26px;margin-bottom:18px;
+  font-size:21px;letter-spacing:.06em}
+.shead .sn{color:var(--green-deep);background:var(--green);color:#04140a;font-weight:700;
+  padding:2px 10px;letter-spacing:.14em}
+.shead .sc{color:var(--muted)}
+.shead .sc b{color:var(--green);font-weight:400}
+
+.stitle{font-size:60px;font-weight:700;line-height:1.08;letter-spacing:-.032em;color:var(--text-hi);
+  margin-bottom:44px;text-shadow:0 0 28px rgba(57,211,83,.2)}
+.stitle .g{color:var(--green)}
+.stitle .dim{color:var(--muted)}
+
+/* Inline technical accents */
+.k{color:var(--green);background:var(--green-soft);border:1px solid rgba(57,211,83,.26);padding:1px 8px}
+.k.r{color:var(--red);background:rgba(248,81,73,.08);border-color:rgba(248,81,73,.3)}
+.k.a{color:var(--amber);background:rgba(210,153,34,.08);border-color:rgba(210,153,34,.3)}
+
+/* ===========================================================
+   5. STEP REVEAL ENGINE (click-triggered)
+   Elements with .step are hidden until the presenter clicks
+   forward. One click = one element.
+   =========================================================== */
+.step{opacity:0;transform:translateY(18px);
+  transition:opacity .45s var(--ease),transform .45s var(--ease)}
+.step.on{opacity:1;transform:none}
+
+/* Variant: arrow/connector that draws left-to-right */
+.step.s-draw{opacity:1;transform:none}
+.step.s-draw .ln{transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease)}
+.step.s-draw.on .ln{transform:scaleX(1)}
+.step.s-draw .hd{opacity:0;transition:opacity .25s ease .38s}
+.step.s-draw.on .hd{opacity:1}
+
+/* Variant: SVG stroke that draws along its own length */
+.step.s-line{opacity:1;transform:none}
+.step.s-line path,.step.s-line line{transition:stroke-dashoffset .8s var(--ease)}
+
+/* Entrance reveals for non-step furniture (fire on slide activation) */
+.r{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.slide.visible .r{opacity:1;transform:none}
+.slide.visible .d1{transition-delay:.10s}
+.slide.visible .d2{transition-delay:.24s}
+.slide.visible .d3{transition-delay:.38s}
+.slide.visible .d4{transition-delay:.52s}
+.slide.visible .d5{transition-delay:.66s}
+.slide.visible .d6{transition-delay:.80s}
+
+/* An element "killed" by a later step (used on the CBSE slide) */
+.gone{text-decoration:line-through;opacity:.25;filter:grayscale(1);
+  transition:opacity .5s ease,filter .5s ease}
+
+/* ===========================================================
+   6. SHARED COMPONENTS
+   =========================================================== */
+
+/* --- Diagram node: the basic bordered block --- */
+.node{background:var(--panel);border:1px solid var(--line-2);border-top:3px solid var(--green);
+  padding:22px 24px;position:relative}
+.node .n-i{font-size:16px;letter-spacing:.22em;color:var(--muted-2);margin-bottom:10px}
+.node .n-t{font-size:28px;font-weight:700;color:var(--text-hi);line-height:1.15;margin-bottom:10px}
+.node .n-d{font-size:20px;font-weight:300;color:var(--muted);line-height:1.5}
+.node .n-c{margin-top:14px;font-size:18px;color:var(--green);letter-spacing:.03em}
+.node.red{border-top-color:var(--red)}
+.node.red .n-c{color:var(--red)}
+.node.amber{border-top-color:var(--amber)}
+.node.amber .n-c{color:var(--amber)}
+.node.purple{border-top-color:var(--purple)}
+.node.purple .n-c{color:var(--purple)}
+
+/* --- Horizontal connector arrow --- */
+.arw{flex:0 0 84px;height:40px;position:relative}
+.arw .ln{position:absolute;top:19px;left:6px;right:20px;height:2px;background:var(--green-dim)}
+.arw .hd{position:absolute;top:8px;right:0;color:var(--green);font-size:24px;line-height:1}
+.arw.red .ln{background:var(--red)} .arw.red .hd{color:var(--red)}
+.arw.amber .ln{background:var(--amber)} .arw.amber .hd{color:var(--amber)}
+
+/* --- Checklist (prevention slides) --- */
+.chk{display:flex;gap:22px;align-items:flex-start;padding:13px 0 13px 4px;
+  border-bottom:1px dashed #1c2530}
+.chk .box{flex:0 0 auto;font-size:26px;line-height:1.3;color:var(--muted-2)}
+.chk .box::before{content:'[ ]'}
+.chk.on .box{color:var(--green);text-shadow:0 0 14px rgba(57,211,83,.7)}
+.chk.on .box::before{content:'[x]'}
+.chk-t{font-size:29px;font-weight:500;color:var(--text-hi);line-height:1.25}
+.chk-s{font-size:21px;font-weight:300;color:var(--muted);margin-top:7px;line-height:1.45}
+.chk-s b{color:var(--green);font-weight:400}
+
+/* --- Generic card --- */
+.card{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--green);
+  padding:28px 30px}
+.card .c-i{font-size:16px;letter-spacing:.24em;color:var(--muted-2);margin-bottom:14px}
+.card .c-t{font-size:32px;font-weight:700;color:var(--text-hi);line-height:1.15;margin-bottom:14px}
+.card .c-d{font-size:21px;font-weight:300;color:var(--muted);line-height:1.55}
+.card.amber{border-left-color:var(--amber)}
+.card.red{border-left-color:var(--red)}
+.card.purple{border-left-color:var(--purple)}
+
+/* --- Big numeric readout --- */
+.stat .s-n{font-size:76px;font-weight:800;color:var(--green);line-height:1;letter-spacing:-.03em;
+  text-shadow:0 0 34px rgba(57,211,83,.45)}
+.stat .s-l{font-size:18px;letter-spacing:.2em;color:var(--muted);margin-top:12px}
+.stat.red .s-n{color:var(--red);text-shadow:0 0 34px rgba(248,81,73,.4)}
+.stat.amber .s-n{color:var(--amber);text-shadow:0 0 34px rgba(210,153,34,.4)}
+
+/* --- Blinking block cursor --- */
+.cur{display:inline-block;width:24px;height:40px;background:var(--green);vertical-align:-6px;
+  margin-left:12px;box-shadow:0 0 22px rgba(57,211,83,.75);animation:blink 1.05s steps(1) infinite}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+/* ===========================================================
+   7. TITLE SLIDE (01)
+   =========================================================== */
+.title-grid{position:absolute;inset:0;display:grid;grid-template-columns:1fr 520px;gap:56px}
+.title-left{display:flex;flex-direction:column}
+.boot{font-size:22px;line-height:1.85;color:var(--muted)}
+.boot .ok{color:var(--green)} .boot .wn{color:var(--amber)}
+.boot .cr{color:var(--red)}   .boot .p{color:var(--green-dim)}
+.big-title{margin-top:16px;font-size:96px;font-weight:800;line-height:1.02;
+  letter-spacing:-.038em;color:var(--text-hi);text-shadow:0 0 36px rgba(57,211,83,.34)}
+.big-title .g{color:var(--green)}
+.big-title .yr{background:var(--green-deep);border-bottom:4px solid var(--green);padding:0 12px}
+.title-sub{margin-top:22px;font-size:42px;font-weight:300;color:#8b949e;letter-spacing:-.01em}
+.title-rule{margin:22px 0 18px;border-top:1px dashed #23303c}
+.title-lede{font-size:25px;font-weight:300;line-height:1.6;color:#8b949e;max-width:920px}
+.title-lede em{font-style:normal;color:var(--text-hi)}
+.title-prompt{margin-top:auto;font-size:24px;color:var(--text)}
+.title-prompt .u{color:var(--green)} .title-prompt .h{color:var(--blue)}
+
+.manifest{border-left:1px solid var(--line);padding-left:40px}
+.m-head{font-size:18px;letter-spacing:.26em;color:var(--green-dim);text-transform:uppercase;
+  margin-bottom:30px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.m-item{margin-bottom:30px;padding-left:20px;border-left:2px solid var(--green-deep)}
+.m-item.a{border-left-color:var(--red)} .m-item.b{border-left-color:var(--amber)}
+.m-item .n{font-size:16px;color:var(--muted-2);letter-spacing:.2em}
+.m-item .t{font-size:27px;font-weight:500;color:var(--text-hi);margin:7px 0 6px}
+.m-item .m{font-size:17px;color:var(--muted);letter-spacing:.03em}
+.m-item .m b{color:var(--green);font-weight:500}
+
+/* ===========================================================
+   8. AGENDA SLIDE (02) — styled as `ls -l` output
+   =========================================================== */
+.ls-row{display:grid;grid-template-columns:210px 92px 1fr;gap:34px;align-items:center;
+  padding:26px 0;border-bottom:1px dashed #1c2530}
+.ls-perm{font-size:20px;color:var(--muted-2);letter-spacing:.04em}
+.ls-idx{font-size:34px;font-weight:800;color:var(--green);letter-spacing:-.02em}
+.ls-name{font-size:38px;font-weight:700;color:var(--text-hi);letter-spacing:-.02em}
+.ls-desc{font-size:21px;font-weight:300;color:var(--muted);margin-top:8px}
+.ls-row.on .ls-perm{color:var(--green-dim)}
+
+/* ===========================================================
+   9. CIA TRIAD (03) & other absolute-positioned diagrams
+   =========================================================== */
+.diag{position:absolute;left:0;right:0;top:154px;bottom:0}
+.diag svg{position:absolute;inset:0;width:100%;height:100%;z-index:1;overflow:visible}
+.diag .node,.diag .hub{position:absolute;z-index:2}
+.hub{background:var(--green-deep);border:2px solid var(--green);
+  box-shadow:0 0 70px rgba(57,211,83,.32);padding:20px 26px;text-align:center}
+.hub .h-t{font-size:30px;font-weight:800;color:var(--green);letter-spacing:.05em;line-height:1.2}
+.hub .h-d{font-size:18px;color:#7ee787;margin-top:8px;letter-spacing:.1em}
+
+/* ===========================================================
+   10. PIPELINE / CHAIN ROWS (04, 08, 15)
+   =========================================================== */
+.chain{display:flex;align-items:center;justify-content:center}
+.chain .node{flex:0 0 auto}
+
+/* ===========================================================
+   11. SECTION DIVIDERS (06, 10)
+   =========================================================== */
+.divider{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding-left:20px}
+.div-num{font-size:300px;font-weight:800;line-height:.82;letter-spacing:-.06em;
+  color:transparent;-webkit-text-stroke:3px var(--green-dim);opacity:.5}
+.div-part{margin-top:-20px;font-size:24px;letter-spacing:.46em;color:var(--green);
+  text-transform:uppercase}
+.div-name{margin-top:22px;font-size:124px;font-weight:800;letter-spacing:-.04em;color:var(--text-hi);
+  text-shadow:0 0 46px rgba(57,211,83,.36);line-height:1}
+.div-rule{margin:36px 0 30px;width:420px;height:2px;
+  background:linear-gradient(90deg,var(--green),transparent)}
+.div-cmd{font-size:26px;color:var(--muted)}
+.div-cmd .p{color:var(--green)}
+.div-note{margin-top:18px;font-size:23px;font-weight:300;color:var(--muted);max-width:1100px;line-height:1.5}
+
+/* ===========================================================
+   12. TIMELINE STRIP (08) & GIT-LOG RAIL (11)
+   =========================================================== */
+.tl{display:flex;position:relative;padding-top:34px}
+.tl::before{content:'';position:absolute;top:8px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,var(--green-deep),var(--green-dim),var(--amber),var(--red))}
+.tl-i{flex:1;position:relative;padding-right:34px}
+.tl-i::before{content:'';position:absolute;top:calc(-34px + 2px);left:0;width:13px;height:13px;
+  transform:rotate(45deg);background:var(--green)}
+.tl-i.a::before{background:var(--amber)} .tl-i.b::before{background:var(--red)}
+.tl-d{font-size:19px;letter-spacing:.16em;color:var(--green)}
+.tl-i.a .tl-d{color:var(--amber)} .tl-i.b .tl-d{color:var(--red)}
+.tl-t{font-size:26px;font-weight:500;color:var(--text-hi);margin:10px 0 8px}
+.tl-s{font-size:19px;font-weight:300;color:var(--muted);line-height:1.5}
+.pay{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pay span{font-size:16px;padding:4px 10px;border:1px solid rgba(248,81,73,.32);
+  color:#ff9b95;background:rgba(248,81,73,.07);letter-spacing:.06em}
+
+.rail{position:relative;padding-left:56px}
+.rail::before{content:'';position:absolute;left:12px;top:14px;bottom:44px;width:1px;
+  background:linear-gradient(to bottom,var(--green-deep),var(--green-dim) 40%,var(--red))}
+.rl{display:grid;grid-template-columns:236px 1fr 300px;gap:30px;align-items:baseline;
+  padding:12px 0;position:relative}
+.rl::before{content:'*';position:absolute;left:-51px;top:12px;font-size:30px;line-height:1;
+  color:var(--muted-2)}
+.rl.on::before{color:var(--green);text-shadow:0 0 14px rgba(57,211,83,.8)}
+.rl-d{font-size:22px;color:var(--green-dim);letter-spacing:.06em}
+.rl-n{font-size:31px;font-weight:700;color:var(--text-hi);letter-spacing:-.01em}
+.rl-s{font-size:19px;font-weight:300;color:var(--muted);margin-top:6px}
+.rl-m{font-size:21px;color:var(--amber);text-align:right;letter-spacing:.04em}
+.rl.hot .rl-m{color:var(--red)}
+
+/* ===========================================================
+   13. WORM PROPAGATION GRAPH (12) — nodes generated by JS
+   =========================================================== */
+.worm{position:absolute;left:0;right:0;top:150px;height:716px}
+.worm svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;z-index:1}
+.w-core{position:absolute;z-index:4;transform:translate(-50%,-50%);
+  background:var(--red);color:#150404;padding:16px 26px;text-align:center;
+  box-shadow:0 0 60px rgba(248,81,73,.5)}
+.w-core .t{font-size:26px;font-weight:800;letter-spacing:.04em;line-height:1.2}
+.w-core .s{font-size:16px;letter-spacing:.14em;margin-top:6px;opacity:.75}
+.w-pkg{position:absolute;z-index:3;transform:translate(-50%,-50%);
+  background:var(--panel);border:1px solid var(--amber);color:var(--amber);
+  padding:9px 16px;font-size:19px;white-space:nowrap;letter-spacing:.02em}
+.w-dot{position:absolute;z-index:2;transform:translate(-50%,-50%) rotate(45deg);
+  background:var(--green-dim);border:1px solid var(--green)}
+.w-dot.r2{width:17px;height:17px}
+.w-dot.r3{width:10px;height:10px;background:var(--green-deep);opacity:.85}
+.w-cap{position:absolute;z-index:5;font-size:19px;letter-spacing:.1em;color:var(--muted);
+  white-space:nowrap}
+.w-cap b{color:var(--green);font-weight:400}
+.loop-lbl{position:absolute;z-index:5;font-size:21px;color:var(--amber);letter-spacing:.06em;
+  background:var(--bg);padding:4px 14px;border:1px dashed var(--amber);transform:translate(-50%,-50%)}
+.mech{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.mech .m-c{background:var(--panel);border:1px solid var(--line);border-top:2px solid var(--amber);
+  padding:18px 22px}
+.mech .m-t{font-size:21px;color:var(--amber);letter-spacing:.03em;margin-bottom:8px}
+.mech .m-s{font-size:19px;font-weight:300;color:var(--muted);line-height:1.4}
+
+/* ===========================================================
+   14. OAUTH CONSENT MOCK (14)
+   Abstract, unbranded illustration of a permission dialog.
+   =========================================================== */
+.consent{background:var(--panel);border:1px solid var(--line-2);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.consent .c-bar{height:46px;display:flex;align-items:center;gap:12px;padding:0 18px;
+  background:var(--panel-2);border-bottom:1px solid var(--line);
+  font-size:17px;color:var(--muted);letter-spacing:.14em}
+.consent .c-body{padding:26px 30px}
+.consent .c-app{font-size:26px;color:var(--text-hi);line-height:1.4;margin-bottom:22px}
+.consent .c-app b{color:var(--amber);font-weight:700}
+.consent .c-scope{display:flex;align-items:center;gap:14px;padding:9px 0;font-size:21px;color:var(--text)}
+.consent .c-scope i{font-style:normal;color:var(--red)}
+.consent .c-btns{display:flex;gap:16px;margin-top:26px}
+.consent .btn{padding:13px 26px;font-size:20px;letter-spacing:.1em;border:1px solid var(--line-2);
+  color:var(--muted)}
+.consent .btn.hot{border-color:var(--red);color:#150404;background:var(--red);font-weight:700;
+  box-shadow:0 0 34px rgba(248,81,73,.45)}
+
+/* ===========================================================
+   15. CODE BLOCK (17)
+   =========================================================== */
+.code{background:var(--panel);border:1px solid var(--line-2);border-left:3px solid var(--red)}
+.code .c-h{padding:12px 22px;border-bottom:1px solid var(--line);font-size:18px;color:var(--muted);
+  letter-spacing:.06em;background:var(--panel-2)}
+.code pre{padding:26px 24px;font-size:24px;line-height:1.75;color:var(--text);
+  font-family:var(--font);white-space:pre-wrap}
+.code .cm{color:var(--muted-2)} .code .kw{color:var(--purple)}
+.code .st{color:var(--blue)}   .code .vr{color:var(--red);font-weight:700}
+.code .pt{color:var(--amber)}
+
+/* Stamp overlay */
+.stamp{display:inline-block;padding:10px 22px;border:2px solid var(--red);color:var(--red);
+  font-size:26px;font-weight:800;letter-spacing:.16em;transform:rotate(-3deg);
+  box-shadow:0 0 34px rgba(248,81,73,.3);background:rgba(248,81,73,.06)}
+
+/* ===========================================================
+   16. BEFORE / AFTER PANELS (18)
+   =========================================================== */
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:72px;position:relative}
+.ba-p{background:var(--panel);border:1px solid var(--line);padding:20px 24px}
+.ba-p.bad{border-top:3px solid var(--red)}
+.ba-p.good{border-top:3px solid var(--green)}
+.ba-h{font-size:18px;letter-spacing:.22em;margin-bottom:15px;padding-bottom:11px;
+  border-bottom:1px dashed #1c2530}
+.ba-p.bad .ba-h{color:var(--red)} .ba-p.good .ba-h{color:var(--green)}
+.ba-l{display:flex;gap:12px;align-items:flex-start;padding:9px 0;font-size:21px;color:var(--text);
+  line-height:1.3}
+.ba-l .b{flex:0 0 auto;color:var(--muted-2);font-size:18px}
+.ba-p.bad .ba-l .b{color:var(--red)} .ba-p.good .ba-l .b{color:var(--green)}
+.ba-l .sub{display:block;font-size:17px;font-weight:300;color:var(--muted);margin-top:4px;line-height:1.35}
+.ba-arrow{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;
+  font-size:34px;color:var(--green);background:var(--bg);padding:14px 8px;
+  text-shadow:0 0 20px rgba(57,211,83,.8)}
+
+/* ===========================================================
+   17. COMPARISON TABLE (20)
+   =========================================================== */
+.tbl{width:100%;border-collapse:collapse;table-layout:fixed}
+.tbl th{text-align:left;padding:0 20px 16px 0;font-size:17px;font-weight:500;letter-spacing:.2em;
+  color:var(--green-dim);border-bottom:1px solid var(--green-deep);text-transform:uppercase}
+.tbl td{padding:22px 20px 22px 0;vertical-align:top;border-bottom:1px dashed #1c2530;
+  font-size:20px;font-weight:300;color:var(--muted);line-height:1.42}
+.tbl td.nm{font-size:26px;font-weight:700;color:var(--text-hi);line-height:1.2}
+.tbl td.nm span{display:block;font-size:16px;font-weight:400;color:var(--green);margin-top:8px;
+  letter-spacing:.06em}
+.tbl .tag{display:inline-block;padding:5px 12px;font-size:16px;letter-spacing:.1em;
+  border:1px solid var(--line-2);color:var(--text)}
+.tbl .tag.v{border-color:rgba(188,140,255,.45);color:var(--purple);background:rgba(188,140,255,.07)}
+.tbl .tag.a{border-color:rgba(210,153,34,.45);color:var(--amber);background:rgba(210,153,34,.07)}
+.tbl .tag.b{border-color:rgba(248,81,73,.45);color:var(--red);background:rgba(248,81,73,.07)}
+.tbl td b{color:var(--text-hi);font-weight:500}
+
+/* ===========================================================
+   18. THEMES CONVERGENCE (21)
+   =========================================================== */
+.th-top{display:grid;grid-template-columns:repeat(4,1fr);gap:48px}
+.th-chip{background:var(--panel);border:1px solid var(--line-2);border-bottom:2px solid var(--green);
+  padding:16px 20px;text-align:center}
+.th-chip .t{font-size:24px;font-weight:700;color:var(--text-hi)}
+.th-chip .s{font-size:16px;color:var(--muted);letter-spacing:.14em;margin-top:6px}
+.th-funnel{position:absolute;left:50%;top:238px;transform:translateX(-50%);z-index:3;
+  background:var(--green-deep);border:2px solid var(--green);padding:14px 34px;
+  box-shadow:0 0 60px rgba(57,211,83,.3)}
+.th-funnel .t{font-size:26px;font-weight:800;color:var(--green);letter-spacing:.14em}
+.th-grid{position:absolute;left:0;right:0;top:376px;display:grid;
+  grid-template-columns:1fr 1fr;gap:28px 36px}
+.th-i{background:var(--panel);border-left:3px solid var(--green);padding:16px 24px}
+.th-i .n{font-size:16px;letter-spacing:.2em;color:var(--muted-2);margin-bottom:6px}
+.th-i .t{font-size:25px;font-weight:700;color:var(--text-hi);margin-bottom:8px;line-height:1.15}
+.th-i .s{font-size:19px;font-weight:300;color:var(--muted);line-height:1.38}
+.th-i:nth-child(2){border-left-color:var(--amber)}
+.th-i:nth-child(3){border-left-color:var(--purple)}
+.th-i:nth-child(4){border-left-color:var(--red)}
+
+/* ===========================================================
+   19. CLOSING SLIDE (23)
+   =========================================================== */
+.close{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center}
+.close .c-cmd{font-size:28px;color:var(--muted)}
+.close .c-cmd .p{color:var(--green)}
+.close .c-big{margin-top:34px;font-size:150px;font-weight:800;line-height:.98;letter-spacing:-.045em;
+  color:var(--text-hi);text-shadow:0 0 48px rgba(57,211,83,.36)}
+.close .c-big .g{color:var(--green)}
+.close .c-sub{margin-top:30px;font-size:32px;font-weight:300;color:var(--muted);max-width:1200px;
+  line-height:1.5}
+.close .c-foot{margin-top:56px;display:flex;gap:56px;font-size:20px;letter-spacing:.14em;
+  color:var(--muted-2)}
+.close .c-foot b{color:var(--green-dim);font-weight:400}
+
+/* ===========================================================
+   20. PRESENTER CHROME (outside the stage)
+   =========================================================== */
+.progress{position:fixed;left:0;bottom:0;height:3px;background:var(--green);z-index:1000;
+  box-shadow:0 0 14px rgba(57,211,83,.9);transition:width .35s var(--ease)}
+.hint{position:fixed;right:18px;bottom:14px;z-index:1000;font-family:var(--font);font-size:13px;
+  letter-spacing:.12em;color:#2c3540;pointer-events:none}
+
+/* Inline editing affordances */
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer}
+.edit-toggle{position:fixed;top:16px;left:16px;z-index:10001;width:46px;height:46px;
+  border:1px solid var(--green-dim);background:rgba(1,4,9,.9);color:var(--green);font-size:20px;
+  cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s ease;font-family:var(--font)}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto}
+.edit-toggle.active{background:var(--green);color:#04140a}
+.edit-mode [contenteditable]{outline:1px dashed rgba(57,211,83,.5);outline-offset:4px}
+.edit-mode [contenteditable]:focus{outline:1px solid var(--green);background:rgba(57,211,83,.07)}
+.edit-banner{position:fixed;top:16px;left:74px;z-index:10001;padding:12px 18px;font-size:14px;
+  letter-spacing:.1em;background:var(--green);color:#04140a;font-family:var(--font);display:none}
+.edit-mode .edit-banner{display:block}
+</style>
+</head>
+<body>
+
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+  <!-- Phosphor background, painted beneath every slide -->
+  <div class="crt-bg"></div>
+
+  <!-- ===== GLOBAL TERMINAL TITLE BAR (updated per slide by JS) ===== -->
+  <header class="chrome-top">
+    <div class="tdots"><i></i><i></i><i></i></div>
+    <div class="tpath">~/talks/<b>cybersecurity-2025-26</b> — <span id="chromePath">threat-brief</span> — 132×44</div>
+    <div class="tright"><span class="dot"></span> SESSION ACTIVE</div>
+  </header>
+
+  <!-- ==================================================================
+       SLIDE 01 — TITLE
+       ================================================================== -->
+  <section class="slide active visible" data-section="THREAT BRIEF" data-path="threat-brief.md">
+    <div class="pad">
+      <div class="title-grid">
+        <div class="title-left">
+          <div class="boot">
+            <div class="r d1"><span class="p">$</span> ./brief --year 2025-26 --scope global</div>
+            <div class="r d2"><span class="ok">[ ok ]</span> loading incident corpus ......... 4 records</div>
+            <div class="r d3"><span class="wn">[warn]</span> unpatched hosts detected ........ widespread</div>
+            <div class="r d4"><span class="cr">[crit]</span> CVSS 10.0 entry found ........... CVE-2025-55182</div>
+          </div>
+
+          <h1 class="big-title r d5">CYBERSECURITY<br><span class="g">IN</span> <span class="yr">2025–26</span></h1>
+          <div class="title-sub r d5">Key Incidents &amp; Lessons<span class="cur"></span></div>
+
+          <div class="title-rule r d6"></div>
+          <p class="title-lede r d6">Four breaches, one shared root cause: <em>trust that was never verified.</em>
+            A worm in <span class="k">npm</span>, an <span class="k">OAuth</span> grant, a hardcoded password,
+            and a single crafted HTTP request.</p>
+
+          <div class="title-prompt r d6"><span class="u">analyst@brief</span>:<span class="h">~</span>$ begin</div>
+        </div>
+
+        <aside class="manifest">
+          <div class="m-head r d3">// threat manifest</div>
+          <div class="m-item a r d3">
+            <div class="n">01 — VULNERABILITY</div>
+            <div class="t">React2Shell</div>
+            <div class="m">CVE-2025-55182 · <b>CVSS 10.0</b></div>
+          </div>
+          <div class="m-item b r d4">
+            <div class="n">02 — SUPPLY CHAIN</div>
+            <div class="t">Shai-Hulud</div>
+            <div class="m">npm worm · <b>5+ waves</b></div>
+          </div>
+          <div class="m-item b r d5">
+            <div class="n">03 — TRUST ABUSE</div>
+            <div class="t">Vercel</div>
+            <div class="m">OAuth chain · <b>$2M listing</b></div>
+          </div>
+          <div class="m-item r d6">
+            <div class="n">04 — MISCONFIG</div>
+            <div class="t">CBSE OSM</div>
+            <div class="m">hardcoded creds · <b>2FA bypass</b></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 02 — AGENDA (rendered as `ls -l` output, one row per click)
+       ================================================================== -->
+  <section class="slide" data-section="AGENDA" data-path="agenda/">
+    <div class="pad">
+      <div class="shead"><span class="sn">02</span><span class="sc">$ <b>ls -l</b> ./agenda</span></div>
+      <h2 class="stitle">Where we're going <span class="dim">— four stops.</span></h2>
+
+      <div class="ls-row step">
+        <div class="ls-perm">drwxr-xr-x  intro</div>
+        <div class="ls-idx">00</div>
+        <div>
+          <div class="ls-name">INTRODUCTION</div>
+          <div class="ls-desc">What security actually means, the words we'll use, and why this year was different</div>
+        </div>
+      </div>
+
+      <div class="ls-row step">
+        <div class="ls-perm">drwxr-xr-x  part-1</div>
+        <div class="ls-idx">01</div>
+        <div>
+          <div class="ls-name">VULNERABILITIES</div>
+          <div class="ls-desc">React2Shell — how one HTTP request became a perfect 10.0</div>
+        </div>
+      </div>
+
+      <div class="ls-row step">
+        <div class="ls-perm">drwxr-xr-x  part-2</div>
+        <div class="ls-idx">02</div>
+        <div>
+          <div class="ls-name">ATTACKS</div>
+          <div class="ls-desc">An npm worm, a stolen OAuth token, and a password shipped to every browser</div>
+        </div>
+      </div>
+
+      <div class="ls-row step">
+        <div class="ls-perm">-rwxr-xr-x  takeaways</div>
+        <div class="ls-idx">03</div>
+        <div>
+          <div class="ls-name">PREVENTION</div>
+          <div class="ls-desc">The shared root causes, and what to actually change on Monday</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 03 — CIA TRIAD (three nodes converging on a hub)
+       ================================================================== -->
+  <section class="slide" data-section="INTRO" data-path="intro/cia-triad.md">
+    <div class="pad">
+      <div class="shead"><span class="sn">03</span><span class="sc">$ <b>cat</b> ./intro/cia-triad.md</span></div>
+      <h2 class="stitle">Three properties. <span class="g">Break one, you have an incident.</span></h2>
+
+      <div class="diag">
+        <!-- Connectors draw from each property into the hub -->
+        <svg viewBox="0 0 1728 712" preserveAspectRatio="none">
+          <g class="ln-c"><line x1="250" y1="130" x2="864" y2="300" stroke="#26a641" stroke-width="2"/></g>
+          <g class="ln-i"><line x1="1478" y1="130" x2="864" y2="300" stroke="#26a641" stroke-width="2"/></g>
+          <g class="ln-a"><line x1="864" y1="540" x2="864" y2="300" stroke="#26a641" stroke-width="2"/></g>
+        </svg>
+
+        <div class="node step" style="left:80px;top:64px;width:340px">
+          <div class="n-i">PROPERTY 01</div>
+          <div class="n-t">CONFIDENTIALITY</div>
+          <div class="n-d">Only the right people can read it.</div>
+          <div class="n-c">&gt; leaked answer sheets</div>
+        </div>
+
+        <div class="node step" style="left:1308px;top:64px;width:340px">
+          <div class="n-i">PROPERTY 02</div>
+          <div class="n-t">INTEGRITY</div>
+          <div class="n-d">Nobody changed it behind your back.</div>
+          <div class="n-c">&gt; a republished npm package</div>
+        </div>
+
+        <div class="node step" style="left:694px;top:466px;width:340px">
+          <div class="n-i">PROPERTY 03</div>
+          <div class="n-t">AVAILABILITY</div>
+          <div class="n-d">It's there when you need it.</div>
+          <div class="n-c">&gt; 12,500 requests/sec</div>
+        </div>
+
+        <div class="hub step s-line" style="left:744px;top:244px;width:240px" data-lines=".ln-c line,.ln-i line,.ln-a line">
+          <div class="h-t">SECURE STATE</div>
+          <div class="h-d">ALL THREE HOLD</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 04 — TERMS PIPELINE (builds left to right, one click each)
+       ================================================================== -->
+  <section class="slide" data-section="INTRO" data-path="intro/terminology.md">
+    <div class="pad">
+      <div class="shead"><span class="sn">04</span><span class="sc">$ <b>man</b> vocabulary</span></div>
+      <h2 class="stitle">Four words people use interchangeably. <span class="dim">They're a sequence.</span></h2>
+
+      <div class="chain" style="margin-top:60px">
+        <div class="node step" style="width:366px">
+          <div class="n-i">STEP 01</div>
+          <div class="n-t">VULNERABILITY</div>
+          <div class="n-d">A flaw that shouldn't be there. It exists whether or not anyone knows.</div>
+          <div class="n-c">&gt; CVE-2025-55182</div>
+        </div>
+
+        <div class="arw step s-draw"><span class="ln"></span><span class="hd">▶</span></div>
+
+        <div class="node step amber" style="width:366px">
+          <div class="n-i">STEP 02</div>
+          <div class="n-t">EXPLOIT</div>
+          <div class="n-d">Working code that turns the flaw into an action.</div>
+          <div class="n-c">&gt; public PoC in days</div>
+        </div>
+
+        <div class="arw step s-draw amber"><span class="ln"></span><span class="hd">▶</span></div>
+
+        <div class="node step amber" style="width:366px">
+          <div class="n-i">STEP 03</div>
+          <div class="n-t">ATTACK</div>
+          <div class="n-d">Someone actually points it at your servers.</div>
+          <div class="n-c">&gt; XMRIG dropped</div>
+        </div>
+
+        <div class="arw step s-draw red"><span class="ln"></span><span class="hd">▶</span></div>
+
+        <div class="node step red" style="width:366px">
+          <div class="n-i">STEP 04</div>
+          <div class="n-t">BREACH</div>
+          <div class="n-d">They got what they came for. Now it's your incident.</div>
+          <div class="n-c">&gt; tokens exfiltrated</div>
+        </div>
+      </div>
+
+      <p class="step" style="margin-top:64px;font-size:29px;font-weight:300;color:var(--muted);line-height:1.5">
+        Only the last box makes the news. <span style="color:var(--green)">Every box before it is a place you could still have stopped it.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 05 — WHY 2025-26 MATTERED
+       ================================================================== -->
+  <section class="slide" data-section="INTRO" data-path="intro/why-this-year.md">
+    <div class="pad">
+      <div class="shead"><span class="sn">05</span><span class="sc">$ <b>diff</b> 2024 2026 --summary</span></div>
+      <h2 class="stitle">What changed: <span class="g">attackers stopped breaking in the front door.</span></h2>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:54px;margin-top:20px">
+        <div class="card step">
+          <div class="c-i">SHIFT 01</div>
+          <div class="c-t">AI-assisted attacks</div>
+          <div class="c-d">Exploit code, phishing copy and reconnaissance all got cheaper at once. The window between
+            disclosure and a working exploit collapsed from weeks to <b style="color:var(--green);font-weight:400">days</b>.</div>
+        </div>
+        <div class="card amber step">
+          <div class="c-i">SHIFT 02</div>
+          <div class="c-t">Supply-chain trust abuse</div>
+          <div class="c-d">Why attack a hardened target when you can compromise something it already installs?
+            One maintainer's token now reaches <b style="color:var(--amber);font-weight:400">thousands of builds</b>.</div>
+        </div>
+        <div class="card purple step">
+          <div class="c-i">SHIFT 03</div>
+          <div class="c-t">OAuth &amp; third-party risk</div>
+          <div class="c-d">Every SaaS and AI tool you connect holds a live key to your data. Your security is now
+            <b style="color:var(--purple);font-weight:400">the weakest vendor you trusted</b>.</div>
+        </div>
+      </div>
+
+      <p class="step" style="margin-top:76px;font-size:31px;font-weight:300;color:var(--text);line-height:1.5;max-width:1500px">
+        None of the four incidents ahead required a zero-day in the victim's own code.
+        <span style="color:var(--green)">Three of them required no exploit at all.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 06 — SECTION DIVIDER: PART 1
+       ================================================================== -->
+  <section class="slide" data-section="PART 1" data-path="part-1/vulnerabilities">
+    <div class="pad">
+      <div class="divider">
+        <div class="div-num r d1">01</div>
+        <div class="div-part r d2">Part One</div>
+        <div class="div-name r d3">VULNERABILITIES</div>
+        <div class="div-rule r d4"></div>
+        <div class="div-cmd r d5"><span class="p">$</span> cd ./part-1/vulnerabilities</div>
+        <div class="div-note r d6">The flaw that's already in your code. Nobody attacked you yet —
+          but the clock started the moment it shipped.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 07 — REACT2SHELL: WHAT IT IS
+       ================================================================== -->
+  <section class="slide" data-section="REACT2SHELL" data-path="part-1/react2shell.md">
+    <div class="pad">
+      <div class="shead"><span class="sn">07</span><span class="sc">$ <b>nvd</b> lookup CVE-2025-55182</span></div>
+      <h2 class="stitle">React2Shell <span class="dim">— the first perfect score that touched everybody.</span></h2>
+
+      <div style="display:grid;grid-template-columns:760px 1fr;gap:68px">
+        <div>
+          <!-- CVSS readout -->
+          <div class="step" style="display:flex;align-items:flex-end;gap:34px">
+            <div>
+              <div style="font-size:128px;font-weight:800;line-height:.9;letter-spacing:-.05em;color:var(--red);
+                          text-shadow:0 0 60px rgba(248,81,73,.5)">10.0</div>
+              <div style="font-size:19px;letter-spacing:.24em;color:var(--muted);margin-top:14px">CVSS BASE SCORE</div>
+            </div>
+            <div style="padding-bottom:52px">
+              <div class="stamp">CRITICAL</div>
+              <div style="font-size:20px;color:var(--muted);margin-top:18px;letter-spacing:.06em">
+                unauthenticated · network · no user interaction</div>
+            </div>
+          </div>
+
+          <div class="step" style="margin-top:42px;font-size:30px;font-weight:300;color:var(--text);line-height:1.55">
+            A <b style="font-weight:500;color:var(--text-hi)">single crafted HTTP request</b> could fully compromise a
+            server — remote code execution through insecure deserialization in the React Server Components
+            <span class="k">Flight</span> protocol.
+          </div>
+
+          <div class="step" style="margin-top:28px;padding:22px 26px;background:var(--panel);
+                      border-left:3px solid var(--red);font-size:26px;color:var(--text-hi);line-height:1.45">
+            No login. No token. No clicking anything.
+            <span style="color:var(--red)">If it rendered server components, it was reachable.</span>
+          </div>
+        </div>
+
+        <!-- Affected ecosystem -->
+        <div class="step">
+          <div style="font-size:18px;letter-spacing:.24em;color:var(--green-dim);padding-bottom:16px;
+                      border-bottom:1px solid var(--line);margin-bottom:26px">// AFFECTED SURFACE</div>
+
+          <div style="font-size:19px;letter-spacing:.16em;color:var(--muted-2);margin-bottom:14px">FRAMEWORKS</div>
+          <div style="display:flex;flex-wrap:wrap;gap:11px;margin-bottom:24px">
+            <span class="k">Next.js</span><span class="k">Waku</span><span class="k">RedwoodSDK</span>
+          </div>
+
+          <div style="font-size:19px;letter-spacing:.16em;color:var(--muted-2);margin-bottom:14px">REACT VERSIONS</div>
+          <div style="display:flex;flex-wrap:wrap;gap:11px;margin-bottom:24px">
+            <span class="k r">19.0</span><span class="k r">19.1.0</span><span class="k r">19.1.1</span><span class="k r">19.2.0</span>
+          </div>
+
+          <div style="font-size:19px;letter-spacing:.16em;color:var(--muted-2);margin-bottom:14px">BUNDLER PLUGINS</div>
+          <div style="display:flex;flex-wrap:wrap;gap:11px">
+            <span class="k">Vite RSC</span><span class="k">Parcel RSC</span>
+          </div>
+
+          <div style="margin-top:28px;padding-top:20px;border-top:1px dashed #1c2530;font-size:21px;
+                      font-weight:300;color:var(--muted);line-height:1.5">
+            If you didn't know your stack used RSC, you were still affected.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 08 — REACT2SHELL: ATTACK CHAIN + TIMELINE
+       Chain builds left→right, one click per node and per arrow.
+       ================================================================== -->
+  <section class="slide" data-section="REACT2SHELL" data-path="part-1/attack-chain.svg">
+    <div class="pad">
+      <div class="shead"><span class="sn">08</span><span class="sc">$ <b>trace</b> --attack-chain react2shell</span></div>
+      <h2 class="stitle">Four hops from <span class="dim">the open internet</span> <span class="g">to your process.</span></h2>
+
+      <div class="chain">
+        <div class="node step" style="width:340px">
+          <div class="n-i">HOP 01</div>
+          <div class="n-t">CRAFTED REQUEST</div>
+          <div class="n-d">A normal-looking POST carrying a hostile Flight payload.</div>
+          <div class="n-c">&gt; unauthenticated</div>
+        </div>
+
+        <div class="arw step s-draw"><span class="ln"></span><span class="hd">▶</span></div>
+
+        <div class="node step amber" style="width:340px">
+          <div class="n-i">HOP 02</div>
+          <div class="n-t">DESERIALIZATION</div>
+          <div class="n-d">The RSC layer rebuilds attacker-controlled objects without validating them.</div>
+          <div class="n-c">&gt; trust boundary crossed</div>
+        </div>
+
+        <div class="arw step s-draw amber"><span class="ln"></span><span class="hd">▶</span></div>
+
+        <div class="node step red" style="width:340px">
+          <div class="n-i">HOP 03</div>
+          <div class="n-t">CODE EXECUTION</div>
+          <div class="n-d">Arbitrary code runs as the server process, with everything it can reach.</div>
+          <div class="n-c">&gt; RCE achieved</div>
+        </div>
+
+        <div class="arw step s-draw red"><span class="ln"></span><span class="hd">▶</span></div>
+
+        <div class="node step red" style="width:340px">
+          <div class="n-i">HOP 04</div>
+          <div class="n-t">PAYLOAD</div>
+          <div class="n-d">Miners, tunnelers and backdoors — whatever that cluster happened to want.</div>
+          <div class="n-c">&gt; persistence installed</div>
+        </div>
+      </div>
+
+      <!-- Disclosure timeline -->
+      <div class="tl step" style="margin-top:58px">
+        <div class="tl-i">
+          <div class="tl-d">DEC 3, 2025</div>
+          <div class="tl-t">Disclosed</div>
+          <div class="tl-s">Coordinated release with patched versions available the same day.</div>
+        </div>
+        <div class="tl-i a">
+          <div class="tl-d">WITHIN DAYS</div>
+          <div class="tl-t">Public proof-of-concept</div>
+          <div class="tl-s">Working exploits circulating openly. The patch window effectively closed.</div>
+        </div>
+        <div class="tl-i b" style="padding-right:0">
+          <div class="tl-d">SHORTLY AFTER</div>
+          <div class="tl-t">Active exploitation, multiple clusters</div>
+          <div class="tl-s">From opportunistic crime through to suspected espionage groups.</div>
+          <div class="pay">
+            <span>XMRIG</span><span>MINOCAT</span><span>SNOWLIGHT</span><span>HISONIC</span><span>COMPOOD</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 09 — REACT2SHELL: PREVENTION
+       ================================================================== -->
+  <section class="slide" data-section="REACT2SHELL" data-path="part-1/prevention.md">
+    <div class="pad">
+      <div class="shead"><span class="sn">09</span><span class="sc">$ <b>./harden</b> --target rsc</span></div>
+      <h2 class="stitle">Prevention <span class="dim">— React2Shell</span></h2>
+
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Patch to the fixed versions — today, not this sprint</div>
+          <div class="chk-s">React <b>19.0.1 / 19.1.2 / 19.2.1</b> · Next.js <b>16.0.7+</b> · matching Vite, Parcel, Waku and RedwoodSDK releases</div>
+        </div>
+      </div>
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Put WAF rules in front of RSC and Server Function endpoints</div>
+          <div class="chk-s">Buys you coverage for the hosts you haven't patched yet — and for the next one of these</div>
+        </div>
+      </div>
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Validate strictly at every deserialization boundary</div>
+          <div class="chk-s">Treat anything rebuilt from the wire as hostile until it's been checked against a schema</div>
+        </div>
+      </div>
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Segment the network so RCE isn't game over</div>
+          <div class="chk-s">Your web tier should not be able to reach your database, your secrets store and your build system</div>
+        </div>
+      </div>
+      <div class="chk step" style="border-bottom:none">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Alert on anomalous outbound connections</div>
+          <div class="chk-s">Miners, tunnelers and downloaders all have to call home — that's the signal you can still catch</div>
+        </div>
+      </div>
+
+      <p class="step" style="margin-top:40px;font-size:26px;font-weight:300;color:var(--muted);line-height:1.5">
+        <span style="color:var(--green)">The uncomfortable part:</span> patching was available on day one.
+        The damage came from the gap between "a fix exists" and "we deployed it."
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 10 — SECTION DIVIDER: PART 2
+       ================================================================== -->
+  <section class="slide" data-section="PART 2" data-path="part-2/attacks">
+    <div class="pad">
+      <div class="divider">
+        <div class="div-num r d1">02</div>
+        <div class="div-part r d2">Part Two</div>
+        <div class="div-name r d3">ATTACKS</div>
+        <div class="div-rule r d4"></div>
+        <div class="div-cmd r d5"><span class="p">$</span> cd ./part-2/attacks</div>
+        <div class="div-note r d6">Three real incidents. None of them started with a zero-day in the victim's own code —
+          they started with something the victim already trusted.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 11 — NPM SUPPLY CHAIN: THE WAVES (git-log style rail)
+       ================================================================== -->
+  <section class="slide" data-section="NPM SUPPLY CHAIN" data-path="part-2/shai-hulud.log">
+    <div class="pad">
+      <div class="shead"><span class="sn">11</span><span class="sc">$ <b>git log</b> --reverse shai-hulud/</span></div>
+      <h2 class="stitle">Not one incident. <span class="g">A campaign that kept coming back.</span></h2>
+
+      <div class="rail">
+        <div class="rl step">
+          <div class="rl-d">SEP 2025</div>
+          <div>
+            <div class="rl-n">Shai-Hulud</div>
+            <div class="rl-s">The original worm. Establishes the playbook: steal tokens, republish, repeat.</div>
+          </div>
+          <div class="rl-m">patient zero</div>
+        </div>
+
+        <div class="rl step">
+          <div class="rl-d">MAR 31, 2026</div>
+          <div>
+            <div class="rl-n">axios</div>
+            <div class="rl-s">Compromised maintainer credentials on one of the most-installed packages in the ecosystem.</div>
+          </div>
+          <div class="rl-m">maintainer creds</div>
+        </div>
+
+        <div class="rl step">
+          <div class="rl-d">MAY 11, 2026</div>
+          <div>
+            <div class="rl-n">TanStack <span style="color:var(--muted);font-weight:300;font-size:22px">/ "Mini Shai-Hulud"</span></div>
+            <div class="rl-s">A leaner variant — same propagation logic, smaller and harder to spot in a diff.</div>
+          </div>
+          <div class="rl-m">variant strain</div>
+        </div>
+
+        <div class="rl step">
+          <div class="rl-d">JUN 1, 2026</div>
+          <div>
+            <div class="rl-n">@redhat-cloud-services</div>
+            <div class="rl-s">An enterprise-published scope falls. Vendor trust is not a security control.</div>
+          </div>
+          <div class="rl-m">32 packages</div>
+        </div>
+
+        <div class="rl step hot">
+          <div class="rl-d">JUN 17, 2026</div>
+          <div>
+            <div class="rl-n">Mastra-AI</div>
+            <div class="rl-s">Attributed to North Korean actor <b style="color:var(--red);font-weight:400">Sapphire Sleet</b> — state-aligned, not opportunistic.</div>
+          </div>
+          <div class="rl-m">80+ packages</div>
+        </div>
+
+        <div class="rl step hot">
+          <div class="rl-d">JUN 2026</div>
+          <div>
+            <div class="rl-n">node-gyp</div>
+            <div class="rl-s">Build tooling — the thing that runs automatically, with a compiler, on every developer machine.</div>
+          </div>
+          <div class="rl-m">57 pkgs · 286+ versions</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 12 — WORM PROPAGATION GRAPH
+       Rings + edges are generated by JS into these .step containers.
+       ================================================================== -->
+  <section class="slide" data-section="NPM SUPPLY CHAIN" data-path="part-2/propagation.svg">
+    <div class="pad">
+      <div class="shead"><span class="sn">12</span><span class="sc">$ <b>trace</b> --propagation --depth 3</span></div>
+      <h2 class="stitle">It spreads <span class="dim">not like malware</span> — <span class="g">like a dependency.</span></h2>
+
+      <div class="worm" id="wormGraph">
+        <div class="step" id="wormCore"></div>
+        <div class="step" id="wormRing1"></div>
+        <div class="step" id="wormRing2"></div>
+        <div class="step" id="wormRing3"></div>
+        <div class="step" id="wormLoop"></div>
+
+        <div class="mech">
+          <div class="m-c step">
+            <div class="m-t">preinstall / postinstall</div>
+            <div class="m-s">The payload runs before you ever import the package — just installing it is enough.</div>
+          </div>
+          <div class="m-c step">
+            <div class="m-t">token theft &amp; auto-republish</div>
+            <div class="m-s">It scrapes npm and GitHub tokens, then publishes malicious versions of legitimate packages under the real maintainer.</div>
+          </div>
+          <div class="m-c step">
+            <div class="m-t">AI agent session hooks</div>
+            <div class="m-s">Newer waves persist inside AI coding-agent sessions, surviving the cleanup you thought you did.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 13 — NPM SUPPLY CHAIN: PREVENTION
+       ================================================================== -->
+  <section class="slide" data-section="NPM SUPPLY CHAIN" data-path="part-2/prevention.md">
+    <div class="pad">
+      <div class="shead"><span class="sn">13</span><span class="sc">$ <b>./harden</b> --target dependencies</span></div>
+      <h2 class="stitle">Prevention <span class="dim">— supply chain</span></h2>
+
+      <div class="chk step" style="padding:13px 0 13px 4px">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Lockfiles, plus a cooling-off period on new releases</div>
+          <div class="chk-s">Set <b>minimumReleaseAge</b> so a version has to survive in public before it reaches your build</div>
+        </div>
+      </div>
+      <div class="chk step" style="padding:13px 0 13px 4px">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Verify provenance, don't just trust the name</div>
+          <div class="chk-s">Generate an <b>SBOM</b> and check <b>SLSA attestations</b> — a stolen token can republish a package, but it can't fake the build origin</div>
+        </div>
+      </div>
+      <div class="chk step" style="padding:13px 0 13px 4px">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Restrict and audit install lifecycle scripts</div>
+          <div class="chk-s">Install with <b>--ignore-scripts</b> by default and allowlist the handful of packages that genuinely need them</div>
+        </div>
+      </div>
+      <div class="chk step" style="padding:13px 0 13px 4px">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Automate dependency scanning in CI</div>
+          <div class="chk-s">Snyk or equivalent, wired to fail the build — a report nobody opens is not a control</div>
+        </div>
+      </div>
+      <div class="chk step" style="padding:13px 0 13px 4px">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Rotate npm and GitHub tokens on a schedule</div>
+          <div class="chk-s">Every wave of this campaign ran on stolen long-lived tokens. Short-lived credentials break the loop</div>
+        </div>
+      </div>
+      <div class="chk step" style="padding:13px 0 13px 4px;border-bottom:none">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Least-privilege CI/CD credentials</div>
+          <div class="chk-s">Publish rights should be the exception, scoped to one package, and never sitting in a general-purpose runner</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 14 — VERCEL: ROOT CAUSE
+       ================================================================== -->
+  <section class="slide" data-section="VERCEL" data-path="part-2/vercel-root-cause.md">
+    <div class="pad">
+      <div class="shead"><span class="sn">14</span><span class="sc">$ <b>postmortem</b> --incident vercel-2026-04</span></div>
+      <h2 class="stitle">April 2026 <span class="dim">— the headline was wrong.</span></h2>
+
+      <div style="display:grid;grid-template-columns:1fr 700px;gap:68px;align-items:start">
+        <div>
+          <div class="step" style="font-size:40px;font-weight:700;color:var(--muted-2);
+                      text-decoration:line-through;line-height:1.25">
+            "Someone exploited a vulnerability in Vercel."
+          </div>
+
+          <div class="step" style="margin-top:32px;font-size:34px;font-weight:500;color:var(--text-hi);line-height:1.35">
+            Nobody exploited Vercel. A Vercel employee connected a third-party AI tool to their Google Workspace
+            account — and granted it <span style="color:var(--red)">every permission it asked for</span>.
+          </div>
+
+          <div class="step" style="margin-top:32px;padding:20px 26px;background:var(--panel);
+                      border-left:3px solid var(--amber);font-size:24px;font-weight:300;
+                      color:var(--muted);line-height:1.5">
+            That tool — <span class="k a">Context.ai</span> — was itself infected with
+            <span class="k r">Lumma Stealer</span> around March 2026. The attacker didn't need to break
+            into Vercel. They just needed to be inside something Vercel had already said yes to.
+          </div>
+
+          <div class="step" style="margin-top:32px;font-size:30px;color:var(--text-hi);line-height:1.4">
+            <span style="color:var(--green)">One consent screen.</span> Roughly two months.
+            Everything downstream of it.
+          </div>
+        </div>
+
+        <!-- Abstract, unbranded illustration of the consent moment -->
+        <div class="consent step">
+          <div class="c-bar">◆ &nbsp; OAUTH CONSENT — SCOPES REQUESTED</div>
+          <div class="c-body">
+            <div class="c-app"><b>context.ai</b> wants access to your<br>workspace account</div>
+            <div class="c-scope"><i>[x]</i> read + send mail</div>
+            <div class="c-scope"><i>[x]</i> read + write drive files</div>
+            <div class="c-scope"><i>[x]</i> read calendar</div>
+            <div class="c-scope"><i>[x]</i> read directory + contacts</div>
+            <div class="c-scope"><i>[x]</i> maintain offline access</div>
+            <div class="c-btns">
+              <div class="btn">DENY</div>
+              <div class="btn hot">ALLOW ALL</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 15 — VERCEL: THE OAUTH TRUST CHAIN
+       Builds link by link, one click per node and per arrow.
+       ================================================================== -->
+  <section class="slide" data-section="VERCEL" data-path="part-2/oauth-chain.svg">
+    <div class="pad">
+      <div class="shead"><span class="sn">15</span><span class="sc">$ <b>trace</b> --trust-chain vercel</span></div>
+      <h2 class="stitle">Five links. <span class="dim">Not one of them was a vulnerability.</span></h2>
+
+      <div class="chain">
+        <div class="node step" style="width:272px">
+          <div class="n-i">LINK 01</div>
+          <div class="n-t">EMPLOYEE</div>
+          <div class="n-d">Connects a productivity tool to their corporate account.</div>
+          <div class="n-c">&gt; "Allow All"</div>
+        </div>
+
+        <div class="arw step s-draw" style="flex-basis:86px"><span class="ln"></span><span class="hd">▶</span></div>
+
+        <div class="node step amber" style="width:272px">
+          <div class="n-i">LINK 02</div>
+          <div class="n-t">CONTEXT.AI</div>
+          <div class="n-d">Third-party AI tool, infected with Lumma Stealer ~March 2026.</div>
+          <div class="n-c">&gt; infostealer resident</div>
+        </div>
+
+        <div class="arw step s-draw amber" style="flex-basis:86px"><span class="ln"></span><span class="hd">▶</span></div>
+
+        <div class="node step amber" style="width:272px">
+          <div class="n-i">LINK 03</div>
+          <div class="n-t">OAUTH TOKENS</div>
+          <div class="n-d">Live, long-lived grants harvested straight off the infected host.</div>
+          <div class="n-c">&gt; no password needed</div>
+        </div>
+
+        <div class="arw step s-draw red" style="flex-basis:86px"><span class="ln"></span><span class="hd">▶</span></div>
+
+        <div class="node step red" style="width:272px">
+          <div class="n-i">LINK 04</div>
+          <div class="n-t">GOOGLE WORKSPACE</div>
+          <div class="n-d">Mail, drive and directory — as the employee, from anywhere.</div>
+          <div class="n-c">&gt; MFA never challenged</div>
+        </div>
+
+        <div class="arw step s-draw red" style="flex-basis:86px"><span class="ln"></span><span class="hd">▶</span></div>
+
+        <div class="node step red" style="width:272px">
+          <div class="n-i">LINK 05</div>
+          <div class="n-t">VERCEL INTERNAL</div>
+          <div class="n-d">Whatever that account could reach, the attacker could reach.</div>
+          <div class="n-c">&gt; full internal access</div>
+        </div>
+      </div>
+
+      <!-- Impact readout -->
+      <div style="display:grid;grid-template-columns:1fr 620px;gap:64px;margin-top:66px;align-items:start">
+        <div class="step">
+          <div style="font-size:18px;letter-spacing:.24em;color:var(--red);margin-bottom:20px">// EXPOSED</div>
+          <div style="display:flex;flex-wrap:wrap;gap:11px">
+            <span class="k r">internal dashboards</span><span class="k r">employee records</span>
+            <span class="k r">API keys</span><span class="k r">NPM tokens</span><span class="k r">GitHub tokens</span>
+          </div>
+          <div style="margin-top:26px;font-size:22px;font-weight:300;color:var(--muted);line-height:1.5">
+            Offered for sale on BreachForums; publicly disclosed April 19, 2026.
+          </div>
+        </div>
+
+        <div class="step" style="display:flex;gap:76px">
+          <div class="stat red">
+            <div class="s-n">$2M</div>
+            <div class="s-l">ASKING PRICE</div>
+          </div>
+          <div class="stat amber">
+            <div class="s-n">~2 mo</div>
+            <div class="s-l">INFECTION → DISCLOSURE</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 16 — VERCEL: PREVENTION
+       ================================================================== -->
+  <section class="slide" data-section="VERCEL" data-path="part-2/prevention.md">
+    <div class="pad">
+      <div class="shead"><span class="sn">16</span><span class="sc">$ <b>./harden</b> --target third-party</span></div>
+      <h2 class="stitle">Prevention <span class="dim">— third-party trust</span></h2>
+
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Least-privilege OAuth scopes — never "Allow All"</div>
+          <div class="chk-s">If a tool needs your whole mailbox to summarise one thread, that's the answer, not the ask</div>
+        </div>
+      </div>
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Allowlist and govern SaaS and AI tools</div>
+          <div class="chk-s">Employees will connect things. Decide in advance which things — an unreviewed integration is an unreviewed vendor</div>
+        </div>
+      </div>
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Encrypt every secret at rest, not just the "sensitive" ones</div>
+          <div class="chk-s">The env var nobody classified as sensitive is the one that ended up in the listing</div>
+        </div>
+      </div>
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Monitor OAuth grants tied to corporate SSO</div>
+          <div class="chk-s">Alert on new grants, broad scopes and offline access. Expire them on a schedule and make people re-consent</div>
+        </div>
+      </div>
+      <div class="chk step" style="border-bottom:none">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Shrink detection-to-disclosure</div>
+          <div class="chk-s">Two months of quiet access is not a detection problem you fix during the incident — it's one you fix before it</div>
+        </div>
+      </div>
+
+      <p class="step" style="margin-top:40px;font-size:26px;font-weight:300;color:var(--muted);line-height:1.5">
+        <span style="color:var(--green)">The lesson isn't "don't use AI tools."</span>
+        It's that every integration you grant becomes part of your attack surface, permanently, until you revoke it.
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 17 — CBSE OSM: THE FINDING
+       ================================================================== -->
+  <section class="slide" data-section="CBSE OSM" data-path="part-2/cbse-osm.md">
+    <div class="pad">
+      <div class="shead"><span class="sn">17</span><span class="sc">$ <b>view-source</b> osm-portal</span></div>
+      <h2 class="stitle">May–June 2026 <span class="dim">— the password was in the page.</span></h2>
+
+      <div style="display:grid;grid-template-columns:640px 1fr;gap:64px;align-items:start">
+        <div>
+          <div class="step">
+            <div style="font-size:18px;letter-spacing:.24em;color:var(--green-dim);padding-bottom:14px;
+                        border-bottom:1px solid var(--line);margin-bottom:22px">// TARGET</div>
+            <div style="font-size:34px;font-weight:700;color:var(--text-hi);line-height:1.25;margin-bottom:16px">
+              CBSE On-Screen Marking portal</div>
+            <div style="font-size:23px;font-weight:300;color:var(--muted);line-height:1.55">
+              The system examiners use to digitally evaluate Class 10 and Class 12 board exam answer sheets —
+              for an entire national exam cycle.</div>
+          </div>
+
+          <div class="step" style="margin-top:44px">
+            <div class="stamp">2FA BYPASSED ENTIRELY</div>
+            <div style="margin-top:24px;font-size:23px;font-weight:300;color:var(--muted);line-height:1.55">
+              OTP-based two-factor was implemented — and completely sidestepped. The master password was a
+              parallel door with no lock on it.</div>
+          </div>
+
+          <div class="step" style="margin-top:44px;padding-top:26px;border-top:1px dashed #1c2530;
+                      font-size:23px;font-weight:300;color:var(--muted);line-height:1.55">
+            Found by <b style="color:var(--green);font-weight:500">Nisarga Adhikary</b>, a 19-year-old ethical
+            hacker — by reading the source of a page anyone could load.
+          </div>
+        </div>
+
+        <div>
+          <div class="code step">
+            <div class="c-h">osm-portal / public bundle — served to every visitor</div>
+<pre><span class="cm">// authentication helper</span>
+<span class="kw">const</span> <span class="vr">MASTER_PWD</span> = <span class="st">"••••••••••••••"</span>;  <span class="cm">// shipped to the browser</span>
+
+<span class="kw">function</span> <span class="pt">login</span>(userId, schoolCode, pwd) {
+  <span class="kw">if</span> (pwd === <span class="vr">MASTER_PWD</span>) <span class="kw">return</span> grantAs(userId);  <span class="cm">// no OTP</span>
+  <span class="kw">return</span> otpFlow(userId, schoolCode);
+}</pre>
+          </div>
+
+          <div class="step" style="margin-top:40px">
+            <div style="font-size:18px;letter-spacing:.24em;color:var(--red);margin-bottom:22px">
+              // EVERYTHING NEEDED TO IMPERSONATE ANY EXAMINER</div>
+            <div style="display:flex;gap:16px;align-items:stretch">
+              <div style="flex:1;background:var(--panel);border:1px solid var(--line-2);border-top:2px solid var(--red);padding:18px 20px">
+                <div style="font-size:16px;letter-spacing:.18em;color:var(--muted-2);margin-bottom:10px">01</div>
+                <div style="font-size:23px;color:var(--text-hi)">A public user ID</div>
+              </div>
+              <div style="flex:1;background:var(--panel);border:1px solid var(--line-2);border-top:2px solid var(--red);padding:18px 20px">
+                <div style="font-size:16px;letter-spacing:.18em;color:var(--muted-2);margin-bottom:10px">02</div>
+                <div style="font-size:23px;color:var(--text-hi)">A school code</div>
+              </div>
+              <div style="flex:1;background:var(--panel);border:1px solid var(--line-2);border-top:2px solid var(--red);padding:18px 20px">
+                <div style="font-size:16px;letter-spacing:.18em;color:var(--muted-2);margin-bottom:10px">03</div>
+                <div style="font-size:23px;color:var(--text-hi)">This password</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 18 — CBSE OSM: BLAST RADIUS + BEFORE/AFTER ARCHITECTURE
+       The hardcoded-password node is visibly struck out on click.
+       ================================================================== -->
+  <section class="slide" data-section="CBSE OSM" data-path="part-2/cbse-remediation.svg">
+    <div class="pad">
+      <div class="shead"><span class="sn">18</span><span class="sc">$ <b>diff</b> --arch before after</span></div>
+      <h2 class="stitle">Blast radius, <span class="dim">and what it took to close it.</span></h2>
+
+      <div class="ba">
+        <div class="ba-p bad step">
+          <div class="ba-h">BEFORE · VENDOR-MANAGED</div>
+          <div class="ba-l"><span class="b">▸</span><span>OSM portal, public bundle
+            <span class="sub">client-side code served to anyone who asked</span></span></div>
+          <div class="ba-l" id="doomedNode" style="border:1px solid rgba(248,81,73,.4);background:rgba(248,81,73,.07);
+               padding:12px 14px;margin:8px 0">
+            <span class="b">▸</span><span style="color:var(--red)">Hardcoded master password
+            <span class="sub" style="color:#ff9b95">bypasses OTP 2FA — impersonate any examiner</span></span></div>
+          <div class="ba-l"><span class="b">▸</span><span>Production servers
+            <span class="sub">full CRUD, plus shell access</span></span></div>
+          <div class="ba-l"><span class="b">▸</span><span>Misconfigured cloud storage
+            <span class="sub">scanned answer sheets &amp; question papers, no authentication</span></span></div>
+          <div class="ba-l"><span class="b">▸</span><span>Results portal
+            <span class="sub">no rate limiting in front of it</span></span></div>
+        </div>
+
+        <div class="ba-p good step" data-kill="#doomedNode">
+          <div class="ba-h">AFTER · AWS GOVERNMENT CLOUD</div>
+          <div class="ba-l"><span class="b">▸</span><span>OSM data migrated to AWS gov cloud
+            <span class="sub">off the vendor's infrastructure</span></span></div>
+          <div class="ba-l"><span class="b">▸</span><span style="color:var(--green)">No master password — no bypass path
+            <span class="sub" style="color:#7ee787">MFA is the only door</span></span></div>
+          <div class="ba-l"><span class="b">▸</span><span>Scoped production access
+            <span class="sub">no shell from the application tier</span></span></div>
+          <div class="ba-l"><span class="b">▸</span><span>Storage denies by default
+            <span class="sub">authenticated access only</span></span></div>
+          <div class="ba-l"><span class="b">▸</span><span>Rate limiting + CDN
+            <span class="sub">MeitY / IIT-backed expert team deployed</span></span></div>
+        </div>
+
+        <div class="ba-arrow step">▶</div>
+      </div>
+
+      <!-- Impact + disclosure readouts -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:36px;margin-top:30px">
+        <div class="card red step" style="padding:16px 22px">
+          <div class="c-i" style="margin-bottom:10px">ACCESS OBTAINED</div>
+          <div style="font-size:22px;color:var(--text-hi);line-height:1.3">Full CRUD <span style="color:var(--muted)">+</span> shell on production servers</div>
+        </div>
+        <div class="card amber step" style="padding:16px 22px">
+          <div class="c-i" style="margin-bottom:10px">SEPARATE DDoS ATTEMPT</div>
+          <div style="font-size:22px;color:var(--text-hi);line-height:1.3"><b style="color:var(--amber)">~12,500 req/sec</b> on the results portal — mitigated</div>
+        </div>
+        <div class="card step" style="padding:16px 22px">
+          <div class="c-i" style="margin-bottom:10px">DISCLOSURE</div>
+          <div style="font-size:22px;color:var(--text-hi);line-height:1.3">Denied May 27, 2026 <span style="color:var(--green)">→</span> admitted days later</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 19 — CBSE OSM: PREVENTION
+       ================================================================== -->
+  <section class="slide" data-section="CBSE OSM" data-path="part-2/prevention.md">
+    <div class="pad">
+      <div class="shead"><span class="sn">19</span><span class="sc">$ <b>./harden</b> --target public-sector</span></div>
+      <h2 class="stitle">Prevention <span class="dim">— credentials &amp; configuration</span></h2>
+
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Never hardcode credentials — client bundles are public</div>
+          <div class="chk-s">Anything you ship to a browser is published. Secret scanning in CI catches this before a stranger does</div>
+        </div>
+      </div>
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Real multi-factor auth with no bypass path</div>
+          <div class="chk-s">Test the bypass, not the happy path. Ask "what else can authenticate a session?" and remove every answer</div>
+        </div>
+      </div>
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Cloud storage: deny by default</div>
+          <div class="chk-s">No public or unauthenticated buckets — especially for scanned documents nobody thought of as a database</div>
+        </div>
+      </div>
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Audit vendors before deployment, not after disclosure</div>
+          <div class="chk-s">The organisation carries the risk even when the code was written by someone else</div>
+        </div>
+      </div>
+      <div class="chk step" style="border-bottom:none">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Hard boundary between staging and production</div>
+          <div class="chk-s">Test conveniences — like a master password — are exactly what survives into prod when the boundary is soft</div>
+        </div>
+      </div>
+
+      <p class="step" style="margin-top:40px;font-size:26px;font-weight:300;color:var(--muted);line-height:1.5">
+        <span style="color:var(--green)">And one process lesson:</span> the initial denial cost more credibility than
+        the vulnerability did. Reversing it within days was the right call — making it faster would have been better.
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 20 — COMPARISON TABLE (one row per click)
+       ================================================================== -->
+  <section class="slide" data-section="SUMMARY" data-path="summary/comparison.tsv">
+    <div class="pad">
+      <div class="shead"><span class="sn">20</span><span class="sc">$ <b>column -t</b> summary/comparison.tsv</span></div>
+      <h2 class="stitle">All four, side by side.</h2>
+
+      <table class="tbl">
+        <colgroup>
+          <col style="width:300px"><col style="width:210px"><col style="width:490px">
+          <col style="width:400px"><col>
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Incident</th><th>Type</th><th>Entry vector</th><th>Scale</th><th>Sector</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="step">
+            <td class="nm">React2Shell<span>CVE-2025-55182</span></td>
+            <td><span class="tag v">Vulnerability</span></td>
+            <td>One crafted HTTP request → insecure deserialization in the RSC <b>Flight</b> protocol</td>
+            <td><b>CVSS 10.0</b> — every RSC-enabled app; exploited within days of disclosure</td>
+            <td>Web frameworks &amp; developer tooling</td>
+          </tr>
+          <tr class="step">
+            <td class="nm">Shai-Hulud<span>&amp; Miasma family</span></td>
+            <td><span class="tag a">Attack</span></td>
+            <td>Stolen npm / GitHub tokens → self-republishing worm in install scripts</td>
+            <td><b>5+ waves</b> across Sept 2025 – June 2026; hundreds of packages and versions</td>
+            <td>Open-source ecosystem — anyone who runs <b>npm install</b></td>
+          </tr>
+          <tr class="step">
+            <td class="nm">Vercel<span>April 2026</span></td>
+            <td><span class="tag b">Attack</span></td>
+            <td>Infostealer on a connected AI tool → replayed <b>"Allow All"</b> OAuth token</td>
+            <td>Internal dashboards, employee records, API / npm / GitHub keys — <b>$2M</b> listing</td>
+            <td>Cloud infrastructure &amp; developer platform</td>
+          </tr>
+          <tr class="step">
+            <td class="nm">CBSE OSM<span>May–June 2026</span></td>
+            <td><span class="tag v">Vuln</span> <span class="tag b">Attack</span></td>
+            <td>Master password hardcoded in the public client bundle → complete 2FA bypass</td>
+            <td>Production CRUD + shell; open storage of one <b>national exam cycle</b>; ~12,500 req/s DDoS</td>
+            <td>Public sector — education</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="step" style="margin-top:44px;font-size:26px;font-weight:300;color:var(--muted);line-height:1.5">
+        Different sectors, different attackers, different years of the calendar.
+        <span style="color:var(--green)">Read the "entry vector" column again — that's the pattern.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 21 — COMMON THEMES (four incidents converge on shared causes)
+       ================================================================== -->
+  <section class="slide" data-section="SUMMARY" data-path="summary/root-causes.md">
+    <div class="pad">
+      <div class="shead"><span class="sn">21</span><span class="sc">$ <b>uniq -c</b> root-causes</span></div>
+      <h2 class="stitle">Four incidents. <span class="g">The same four mistakes.</span></h2>
+
+      <div style="position:absolute;left:0;right:0;top:154px;bottom:0">
+        <!-- Convergence lines from each incident chip down into the funnel -->
+        <svg viewBox="0 0 1728 560" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;overflow:visible">
+          <g class="ln-conv">
+            <line x1="216"  y1="96" x2="864" y2="196" stroke="#26a641" stroke-width="2"/>
+            <line x1="648"  y1="96" x2="864" y2="196" stroke="#26a641" stroke-width="2"/>
+            <line x1="1080" y1="96" x2="864" y2="196" stroke="#26a641" stroke-width="2"/>
+            <line x1="1512" y1="96" x2="864" y2="196" stroke="#26a641" stroke-width="2"/>
+          </g>
+        </svg>
+
+        <div class="th-top step" style="position:relative;z-index:2">
+          <div class="th-chip"><div class="t">React2Shell</div><div class="s">VULNERABILITY</div></div>
+          <div class="th-chip"><div class="t">Shai-Hulud</div><div class="s">SUPPLY CHAIN</div></div>
+          <div class="th-chip"><div class="t">Vercel</div><div class="s">OAUTH ABUSE</div></div>
+          <div class="th-chip"><div class="t">CBSE OSM</div><div class="s">MISCONFIG</div></div>
+        </div>
+
+        <div class="th-funnel step s-line" data-lines=".ln-conv line" style="top:196px">
+          <div class="t">SHARED ROOT CAUSES</div>
+        </div>
+
+        <div class="th-grid" style="top:318px;gap:20px 36px">
+          <div class="th-i step">
+            <div class="n">CAUSE 01</div>
+            <div class="t">Supply chain trust</div>
+            <div class="s">You inherit the security of everything you install. A package, a framework, a vendor — each one is a decision you made once and stopped reviewing.</div>
+          </div>
+          <div class="th-i step">
+            <div class="n">CAUSE 02</div>
+            <div class="t">Third-party &amp; AI tool risk</div>
+            <div class="s">The tool you granted access to is now part of your attack surface. Vercel's breach happened entirely inside software Vercel didn't write.</div>
+          </div>
+          <div class="th-i step">
+            <div class="n">CAUSE 03</div>
+            <div class="t">Weak default configuration</div>
+            <div class="s">"Allow All", unauthenticated buckets, secrets shipped to the client, install scripts that run unreviewed. All defaults. All avoidable.</div>
+          </div>
+          <div class="th-i step">
+            <div class="n">CAUSE 04</div>
+            <div class="t">Delayed disclosure</div>
+            <div class="s">Two months of quiet access at Vercel. An initial denial at CBSE. The gap between compromise and admission is where the damage compounds.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 22 — ORG-LEVEL PREVENTION CHECKLIST
+       ================================================================== -->
+  <section class="slide" data-section="TAKEAWAYS" data-path="takeaways/checklist.md">
+    <div class="pad">
+      <div class="shead"><span class="sn">22</span><span class="sc">$ <b>./harden</b> --scope organisation</span></div>
+      <h2 class="stitle">Five things to change <span class="g">on Monday.</span></h2>
+
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Patch management cadence</div>
+          <div class="chk-s">A written SLA per severity — critical measured in hours, not sprints. React2Shell had a fix on day one; the damage was all in the delay</div>
+        </div>
+      </div>
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Zero trust for third-party integrations</div>
+          <div class="chk-s">Minimum scope, an expiry date, and a review. Every OAuth grant is a standing key to your data until someone revokes it</div>
+        </div>
+      </div>
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Dependency hygiene</div>
+          <div class="chk-s">Lockfiles, release-age delays, provenance checks, no unreviewed lifecycle scripts, scanning that fails the build</div>
+        </div>
+      </div>
+      <div class="chk step">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Credential hygiene</div>
+          <div class="chk-s">Rotate on a schedule, scope to one job, encrypt everything at rest, and never — ever — ship one to the client</div>
+        </div>
+      </div>
+      <div class="chk step" style="border-bottom:none">
+        <span class="box"></span>
+        <div>
+          <div class="chk-t">Incident response readiness</div>
+          <div class="chk-s">Rehearse it before you need it. Decide now who discloses, how fast, and what you say — because denying it first is the expensive option</div>
+        </div>
+      </div>
+
+      <p class="step" style="margin-top:40px;font-size:28px;font-weight:300;color:var(--text);line-height:1.5">
+        None of this is exotic. <span style="color:var(--green)">All four incidents were stopped by items on this list —
+        in the organisations that had already done them.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       SLIDE 23 — Q&A / CLOSING
+       ================================================================== -->
+  <section class="slide" data-section="Q&amp;A" data-path="questions">
+    <div class="pad">
+      <div class="close">
+        <div class="c-cmd r d1"><span class="p">analyst@brief</span>:~$ ./questions --interactive</div>
+        <div class="c-big r d2">THANK<br><span class="g">YOU</span><span class="cur" style="width:34px;height:96px;vertical-align:-4px"></span></div>
+        <div class="c-sub r d4">Questions, arguments, and "but what about—" all welcome.<br>
+          If you take one thing away: <span style="color:var(--text-hi)">verify the trust you've already granted.</span></div>
+        <div class="c-foot r d6">
+          <div><b>DECK</b> &nbsp; cybersecurity-2025-26</div>
+          <div><b>INCIDENTS</b> &nbsp; 4</div>
+          <div><b>SOURCES</b> &nbsp; public disclosures &amp; vendor advisories</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CRT OVERLAYS — above every slide, never interactive ===== -->
+  <div class="roll"></div>
+  <div class="scan"></div>
+  <div class="vig"></div>
+
+  <!-- ===== GLOBAL VIM-STYLE STATUS BAR (updated per slide by JS) ===== -->
+  <footer class="statusbar">
+    <div class="seg">NORMAL</div>
+    <div><span id="sbNum">01</span> / 23</div>
+    <div class="sec" id="sbSection">THREAT BRIEF</div>
+    <div>utf-8</div>
+    <div class="rt">
+      <span class="pips" id="sbPips"></span>
+      <span id="sbSteps">—</span>
+    </div>
+  </footer>
+
+</main>
+</div>
+
+<!-- Presenter chrome, outside the fixed stage -->
+<div class="progress" id="progressBar" style="width:0"></div>
+<div class="hint">← → NAVIGATE · E EDIT</div>
+<div class="edit-hotzone"></div>
+<button class="edit-toggle" id="editToggle" title="Edit mode (E)">✎</button>
+<div class="edit-banner">EDIT MODE — CLICK TEXT TO CHANGE · CTRL+S TO SAVE A COPY · E TO EXIT</div>
+
+<script>
+/* ==================================================================
+   1. WORM PROPAGATION GRAPH (slide 12)
+   Builds an elliptical dependency graph into the pre-existing .step
+   containers, so each ring reveals as one click.
+   ================================================================== */
+(function buildWorm(){
+  const host = document.getElementById('wormGraph');
+  if(!host) return;
+
+  const W = 1728, H = 716, CX = 864, CY = 225;
+  const SVGNS = 'http://www.w3.org/2000/svg';
+
+  // Helper: make an absolutely-positioned SVG layer inside a container
+  const layer = (parent) => {
+    const s = document.createElementNS(SVGNS,'svg');
+    s.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    s.setAttribute('preserveAspectRatio','none');
+    parent.appendChild(s);
+    return s;
+  };
+  const edge = (svg,x1,y1,x2,y2,stroke,w,op) => {
+    const l = document.createElementNS(SVGNS,'line');
+    l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+    l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke',stroke); l.setAttribute('stroke-width',w||1.5);
+    l.setAttribute('opacity',op||1);
+    svg.appendChild(l); return l;
+  };
+  // Point on an ellipse at a given angle (degrees)
+  const pt = (deg,rx,ry) => {
+    const a = deg * Math.PI/180;
+    return { x: CX + rx*Math.cos(a), y: CY + ry*Math.sin(a) };
+  };
+
+  /* --- Core: the stolen maintainer token --- */
+  const core = document.getElementById('wormCore');
+  const coreEl = document.createElement('div');
+  coreEl.className = 'w-core';
+  coreEl.style.left = CX+'px'; coreEl.style.top = CY+'px';
+  coreEl.innerHTML = '<div class="t">STOLEN MAINTAINER TOKEN</div><div class="s">ONE DEVELOPER · ONE MACHINE</div>';
+  core.appendChild(coreEl);
+
+  /* --- Ring 1: packages republished under the real maintainer --- */
+  const R1 = { rx:300, ry:96, angles:[45,135,225,315],
+               labels:['axios','@tanstack/*','@redhat-cloud-services','node-gyp'] };
+  const ring1 = document.getElementById('wormRing1');
+  const svg1 = layer(ring1);
+  const p1 = R1.angles.map(a => pt(a, R1.rx, R1.ry));
+  p1.forEach((p,i) => {
+    edge(svg1, CX, CY, p.x, p.y, '#d29922', 2, .8);
+    const el = document.createElement('div');
+    el.className = 'w-pkg';
+    el.style.left = p.x+'px'; el.style.top = p.y+'px';
+    el.style.transitionDelay = (i*0.06)+'s';
+    el.textContent = R1.labels[i];
+    ring1.appendChild(el);
+  });
+  const cap1 = document.createElement('div');
+  cap1.className = 'w-cap';
+  cap1.style.left = '0px'; cap1.style.top = '468px';
+  cap1.innerHTML = '↑ <b>republished</b> under the real maintainer';
+  ring1.appendChild(cap1);
+
+  /* --- Ring 2: direct downstream dependents --- */
+  const R2 = { rx:520, ry:152 };
+  const ring2 = document.getElementById('wormRing2');
+  const svg2 = layer(ring2);
+  const p2 = [];
+  for(let i=0;i<8;i++){
+    const p = pt(22.5 + i*45, R2.rx, R2.ry); p2.push(p);
+    edge(svg2, p1[Math.floor(i/2)].x, p1[Math.floor(i/2)].y, p.x, p.y, '#26a641', 1.5, .7);
+    const d = document.createElement('div');
+    d.className = 'w-dot r2';
+    d.style.left = p.x+'px'; d.style.top = p.y+'px';
+    d.style.transitionDelay = (i*0.045)+'s';
+    ring2.appendChild(d);
+  }
+
+  /* --- Ring 3: the CI runners and laptops that actually execute it --- */
+  const R3 = { rx:730, ry:200 };
+  const ring3 = document.getElementById('wormRing3');
+  const svg3 = layer(ring3);
+  const p3 = [];
+  for(let i=0;i<16;i++){
+    const p = pt(11.25 + i*22.5, R3.rx, R3.ry); p3.push(p);
+    edge(svg3, p2[Math.floor(i/2)].x, p2[Math.floor(i/2)].y, p.x, p.y, '#0e4429', 1.5, .9);
+    const d = document.createElement('div');
+    d.className = 'w-dot r3';
+    d.style.left = p.x+'px'; d.style.top = p.y+'px';
+    d.style.transitionDelay = (i*0.03)+'s';
+    ring3.appendChild(d);
+  }
+  const cap3 = document.createElement('div');
+  cap3.className = 'w-cap';
+  cap3.style.right = '0px'; cap3.style.top = '468px';
+  cap3.innerHTML = 'CI runners &amp; developer machines — <b>the payload runs on install</b> ↑';
+  ring3.appendChild(cap3);
+
+  /* --- The loop: harvested tokens feed straight back to the start --- */
+  const loop = document.getElementById('wormLoop');
+  const svgL = layer(loop);
+  const arc = document.createElementNS(SVGNS,'path');
+  // Sweep from a bottom-right outer node, under the graph, back into the core
+  const s = p3[3];
+  arc.setAttribute('d', `M ${s.x} ${s.y} C ${s.x+90} ${s.y+240}, ${CX-560} 560, ${CX-152} ${CY+34}`);
+  arc.setAttribute('fill','none');
+  arc.setAttribute('stroke','#d29922');
+  arc.setAttribute('stroke-width','2.5');
+  arc.setAttribute('stroke-dasharray','10 7');
+  svgL.appendChild(arc);
+  const ll = document.createElement('div');
+  ll.className = 'loop-lbl';
+  ll.style.left = (CX+40)+'px'; ll.style.top = '524px';
+  ll.textContent = '↺ new tokens harvested → repeat';
+  loop.appendChild(ll);
+})();
+
+/* ==================================================================
+   2. SLIDE PRESENTATION CONTROLLER
+   Fixed 1920x1080 stage + click-triggered step reveals.
+   ================================================================== */
+class SlidePresentation {
+  constructor(){
+    this.stage   = document.getElementById('deckStage');
+    this.slides  = Array.from(document.querySelectorAll('.slide'));
+    this.current = 0;
+    this.stepIdx = 0;
+
+    // Cache each slide's step list, in DOM (= reveal) order
+    this.stepsFor = this.slides.map(s => Array.from(s.querySelectorAll('.step')));
+
+    this.prepSvgLines();
+    this.buildPips();
+    this.setupStageScale();
+    this.setupNav();
+    this.showSlide(0, 'forward');
+  }
+
+  /* --- Prime SVG connectors so they can "draw" along their length --- */
+  prepSvgLines(){
+    document.querySelectorAll('.s-line').forEach(el => {
+      const sel = el.dataset.lines;
+      if(!sel) return;
+      el.__lines = Array.from(document.querySelectorAll(sel));
+      el.__lines.forEach(ln => {
+        const len = ln.getTotalLength ? ln.getTotalLength() : 1000;
+        ln.style.strokeDasharray  = len;
+        ln.style.strokeDashoffset = len;
+        ln.style.transition = 'stroke-dashoffset .8s cubic-bezier(.16,1,.3,1)';
+      });
+    });
+  }
+
+  /* --- Uniform scale of the whole stage; letterbox, never reflow --- */
+  setupStageScale(){
+    const scale = () => {
+      const f = Math.min(window.innerWidth/1920, window.innerHeight/1080);
+      const x = (window.innerWidth  - 1920*f)/2;
+      const y = (window.innerHeight - 1080*f)/2;
+      this.stage.style.transform = `translate(${x}px, ${y}px) scale(${f})`;
+    };
+    scale();
+    window.addEventListener('resize', scale);
+  }
+
+  buildPips(){
+    this.pips = document.getElementById('sbPips');
+  }
+
+  /* ---------------- Step reveal ---------------- */
+  get steps(){ return this.stepsFor[this.current]; }
+
+  revealStep(el){
+    el.classList.add('on');
+    if(el.__lines) el.__lines.forEach(ln => ln.style.strokeDashoffset = 0);
+    if(el.dataset.kill){
+      const t = document.querySelector(el.dataset.kill);
+      if(t) t.classList.add('gone');
+    }
+  }
+  hideStep(el){
+    el.classList.remove('on');
+    if(el.__lines) el.__lines.forEach(ln => {
+      ln.style.strokeDashoffset = ln.style.strokeDasharray;
+    });
+    if(el.dataset.kill){
+      const t = document.querySelector(el.dataset.kill);
+      if(t) t.classList.remove('gone');
+    }
+  }
+  setAllSteps(on){
+    this.steps.forEach(el => on ? this.revealStep(el) : this.hideStep(el));
+    this.stepIdx = on ? this.steps.length : 0;
+    this.updateStatus();
+  }
+
+  /* ---------------- Navigation ---------------- */
+  next(){
+    if(this.editing) return;
+    if(this.stepIdx < this.steps.length){
+      this.revealStep(this.steps[this.stepIdx++]);
+      this.updateStatus();
+    } else if(this.current < this.slides.length-1){
+      this.showSlide(this.current+1, 'forward');
+    }
+  }
+  prev(){
+    if(this.editing) return;
+    if(this.stepIdx > 0){
+      this.hideStep(this.steps[--this.stepIdx]);
+      this.updateStatus();
+    } else if(this.current > 0){
+      this.showSlide(this.current-1, 'backward');
+    }
+  }
+
+  showSlide(i, dir){
+    this.current = Math.max(0, Math.min(i, this.slides.length-1));
+    this.slides.forEach((s,n) => {
+      const on = n === this.current;
+      s.classList.toggle('active', on);
+      s.classList.toggle('visible', on);
+    });
+    // Entering forward starts blank; entering backward shows the full slide
+    if(dir === 'backward') this.setAllSteps(true);
+    else this.setAllSteps(false);
+    this.updateChrome();
+  }
+
+  /* ---------------- Chrome: title bar, status bar, progress ---------------- */
+  updateChrome(){
+    const s = this.slides[this.current];
+    document.getElementById('chromePath').textContent = s.dataset.path || 'slide';
+    document.getElementById('sbSection').textContent  = s.dataset.section || '';
+    document.getElementById('sbNum').textContent =
+      String(this.current+1).padStart(2,'0');
+    document.getElementById('progressBar').style.width =
+      ((this.current+1)/this.slides.length*100) + '%';
+    this.updateStatus();
+  }
+  updateStatus(){
+    const total = this.steps.length;
+    document.getElementById('sbSteps').textContent =
+      total ? `step ${this.stepIdx} / ${total}` : 'no reveals';
+    // Diamond pips mirror the step progress on this slide
+    if(this.pips){
+      if(this.pips.children.length !== total){
+        this.pips.innerHTML = '';
+        for(let n=0;n<total;n++) this.pips.appendChild(document.createElement('i'));
+      }
+      Array.from(this.pips.children).forEach((p,n) =>
+        p.classList.toggle('on', n < this.stepIdx));
+    }
+  }
+
+  setupNav(){
+    // Keyboard
+    document.addEventListener('keydown', e => {
+      if(e.target.getAttribute && e.target.getAttribute('contenteditable')) return;
+      switch(e.key){
+        case 'ArrowRight': case 'ArrowDown': case ' ':
+        case 'PageDown':   case 'Enter':
+          e.preventDefault(); this.next(); break;
+        case 'ArrowLeft': case 'ArrowUp': case 'PageUp': case 'Backspace':
+          e.preventDefault(); this.prev(); break;
+        case 'Home': e.preventDefault(); this.showSlide(0,'forward'); break;
+        case 'End':  e.preventDefault(); this.showSlide(this.slides.length-1,'backward'); break;
+        case 'r': case 'R': this.setAllSteps(false); break;  // replay this slide's build
+        case 'a': case 'A': this.setAllSteps(true);  break;  // reveal everything at once
+      }
+    });
+
+    // Click / tap: right half advances, left half goes back
+    document.addEventListener('click', e => {
+      if(this.editing) return;
+      if(e.target.closest('.edit-toggle, .edit-hotzone')) return;
+      (e.clientX > window.innerWidth*0.28) ? this.next() : this.prev();
+    });
+
+    // Wheel, throttled so one gesture is one step
+    let wheelLock = false;
+    document.addEventListener('wheel', e => {
+      if(this.editing || wheelLock) return;
+      if(Math.abs(e.deltaY) < 12) return;
+      wheelLock = true;
+      setTimeout(() => wheelLock = false, 420);
+      (e.deltaY > 0) ? this.next() : this.prev();
+    }, {passive:true});
+
+    // Touch swipe
+    let tx = 0, ty = 0;
+    document.addEventListener('touchstart', e => {
+      tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY;
+    }, {passive:true});
+    document.addEventListener('touchend', e => {
+      if(this.editing) return;
+      const dx = e.changedTouches[0].clientX - tx;
+      const dy = e.changedTouches[0].clientY - ty;
+      if(Math.abs(dx) < 46 || Math.abs(dx) < Math.abs(dy)) return;
+      (dx < 0) ? this.next() : this.prev();
+    }, {passive:true});
+  }
+}
+
+const deck = new SlidePresentation();
+
+/* ==================================================================
+   3. INLINE TEXT EDITING
+   Hover the top-left corner or press E. Edits persist in
+   localStorage; Ctrl+S downloads a clean copy of the file.
+   ================================================================== */
+class InlineEditor {
+  constructor(deck){
+    this.deck = deck;
+    this.isActive = false;
+    this.KEY = 'cyber2526-edits';
+
+    // Text nodes that are safe to edit (structure and diagrams excluded)
+    this.targets = Array.from(document.querySelectorAll(
+      '.slide h1, .slide h2, .slide p, .stitle, .chk-t, .chk-s, .c-t, .c-d, ' +
+      '.n-t, .n-d, .n-c, .ls-name, .ls-desc, .rl-n, .rl-s, .rl-m, .tl-t, .tl-s, ' +
+      '.m-t, .m-s, .th-i .t, .th-i .s, .div-name, .div-note, .title-lede, .c-sub, ' +
+      '.tbl td, .ba-l, .m-item .t'
+    ));
+    this.targets.forEach((el,i) => el.dataset.eid = i);
+    this.restore();
+  }
+
+  restore(){
+    let saved;
+    try { saved = JSON.parse(localStorage.getItem(this.KEY) || '{}'); }
+    catch(_) { return; }
+    Object.keys(saved).forEach(id => {
+      const el = this.targets[+id];
+      if(el) el.innerHTML = saved[id];
+    });
+  }
+  save(){
+    const out = {};
+    this.targets.forEach((el,i) => { out[i] = el.innerHTML; });
+    try { localStorage.setItem(this.KEY, JSON.stringify(out)); } catch(_){}
+  }
+
+  toggle(){
+    this.isActive = !this.isActive;
+    this.deck.editing = this.isActive;
+    document.body.classList.toggle('edit-mode', this.isActive);
+    document.getElementById('editToggle').classList.toggle('active', this.isActive);
+    this.targets.forEach(el => {
+      if(this.isActive) el.setAttribute('contenteditable','true');
+      else { el.removeAttribute('contenteditable'); }
+    });
+    // While editing, show the whole slide so nothing is hidden mid-build
+    this.deck.setAllSteps(this.isActive ? true : false);
+    if(!this.isActive) this.save();
+  }
+
+  /* Ctrl+S — export a clean standalone copy with the edits baked in */
+  export(){
+    const clone = document.documentElement.cloneNode(true);
+    clone.querySelectorAll('[contenteditable]').forEach(e => e.removeAttribute('contenteditable'));
+    clone.querySelectorAll('.on').forEach(e => e.classList.remove('on'));
+    clone.querySelectorAll('.gone').forEach(e => e.classList.remove('gone'));
+    clone.querySelectorAll('.slide').forEach((e,i) => {
+      e.classList.toggle('active', i===0);
+      e.classList.toggle('visible', i===0);
+    });
+    // Drop the JS-generated worm graph; it rebuilds itself on load
+    ['wormCore','wormRing1','wormRing2','wormRing3','wormLoop'].forEach(id => {
+      const n = clone.querySelector('#'+id); if(n) n.innerHTML = '';
+    });
+    const blob = new Blob(['<!DOCTYPE html>\n' + clone.outerHTML], {type:'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'cybersecurity-2025-26.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+}
+
+const editor = new InlineEditor(deck);
+
+/* --- Edit toggle: click, hover-with-grace-period, and the E key --- */
+const hotzone    = document.querySelector('.edit-hotzone');
+const editToggle = document.getElementById('editToggle');
+let hideTimeout = null;
+
+editToggle.addEventListener('click', e => { e.stopPropagation(); editor.toggle(); });
+hotzone.addEventListener('click',    e => { e.stopPropagation(); editor.toggle(); });
+
+hotzone.addEventListener('mouseenter', () => {
+  clearTimeout(hideTimeout); editToggle.classList.add('show');
+});
+hotzone.addEventListener('mouseleave', () => {
+  hideTimeout = setTimeout(() => {
+    if(!editor.isActive) editToggle.classList.remove('show');
+  }, 400);
+});
+editToggle.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+editToggle.addEventListener('mouseleave', () => {
+  hideTimeout = setTimeout(() => {
+    if(!editor.isActive) editToggle.classList.remove('show');
+  }, 400);
+});
+
+document.addEventListener('keydown', e => {
+  if((e.key === 'e' || e.key === 'E') && !e.target.getAttribute('contenteditable')){
+    editor.toggle();
+  }
+  if((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')){
+    e.preventDefault(); editor.save(); editor.export();
+  }
+});
+document.addEventListener('input', () => { if(editor.isActive) editor.save(); });
+</script>
+
+</body>
+</html>
+
+
+
